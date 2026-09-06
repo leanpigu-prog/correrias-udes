@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Informe Tec y Profesionales UDES</title>
+<title>Informe Programas UDES — TL, Tec y Profesionales</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
@@ -11,6 +11,7 @@
 :root{
   --navy:#0C2340;--navy-2:#122B4F;--navy-3:#1E3D6E;
   --gold:#C9A227;--gold-2:#E8BF45;--sky:#5BA4D0;
+  --tl-color:#1E6B45;--tl-light:#3DB87A;
   --bg:#FFFFFF;--surface:#F4F8FC;--surface2:#EBF2FA;
   --border:#C8D8E8;--text:#0D1F35;--text-2:#4A6080;--text-3:#8BA0B8;
   --bar-bg:#FFFFFF;
@@ -18,6 +19,7 @@
 @media(prefers-color-scheme:dark){
   :root:not([data-theme='light']){
     --navy:#061525;--navy-2:#0C2340;--navy-3:#1A3560;
+    --tl-color:#3DB87A;--tl-light:#3DB87A;
     --bg:#060F1C;--surface:#0D1C30;--surface2:#142540;
     --border:#1E3A5F;--text:#C8DCF0;--text-2:#7AA0C4;--text-3:#4A6A8A;
     --bar-bg:#0F2040;
@@ -60,15 +62,18 @@ h1{font-family:'Lora',Georgia,serif;font-size:clamp(1.15rem,2.4vw,1.75rem);font-
 .bar-fill{height:100%;border-radius:2px;transition:width .6s ease}
 .bar-fill.tec{background:var(--navy-3)}
 .bar-fill.prof{background:var(--gold)}
+.bar-fill.tl{background:var(--tl-color)}
 .bar-fill.top1.tec,.bar-fill.top2.tec{background:var(--navy)}
 .bar-val{font-size:12px;color:var(--text-2);font-variant-numeric:tabular-nums;white-space:nowrap}
 .badge-tipo{display:inline-block;font-size:9.5px;font-weight:600;padding:1px 7px;border-radius:99px;letter-spacing:.05em;text-transform:uppercase;vertical-align:middle;margin-left:5px}
 .badge-tec{background:rgba(30,61,110,.12);color:var(--navy-3);border:1px solid var(--navy-3)}
 .badge-prof{background:rgba(201,162,39,.14);color:#8a6800;border:1px solid var(--gold)}
+.badge-tl{background:rgba(30,107,69,.12);color:var(--tl-color);border:1px solid var(--tl-color)}
 .badge-virtual{display:inline-block;font-size:9px;font-weight:600;padding:1px 6px;border-radius:99px;background:rgba(91,164,208,.18);color:#1a5c80;border:1px solid var(--sky);margin-left:4px;letter-spacing:.05em;text-transform:uppercase;vertical-align:middle}
 @media(prefers-color-scheme:dark){
   :root:not([data-theme='light']) .badge-tec{color:var(--sky);border-color:var(--sky);background:rgba(91,164,208,.15)}
   :root:not([data-theme='light']) .badge-prof{color:var(--gold-2);border-color:var(--gold-2);background:rgba(232,191,69,.12)}
+  :root:not([data-theme='light']) .badge-tl{color:var(--tl-light);border-color:var(--tl-light);background:rgba(61,184,122,.15)}
   :root:not([data-theme='light']) .bar-fill.prof{background:var(--gold-2)}
   :root:not([data-theme='light']) .badge-virtual{color:var(--sky);border-color:var(--sky);background:rgba(91,164,208,.2)}
 }
@@ -79,6 +84,7 @@ h1{font-family:'Lora',Georgia,serif;font-size:clamp(1.15rem,2.4vw,1.75rem);font-
 .filter-btn:hover{border-color:var(--navy-3);color:var(--text)}
 .filter-btn.active{background:var(--navy);border-color:var(--navy);color:#fff}
 .filter-btn.active[data-f='prof']{background:var(--gold);border-color:var(--gold);color:#0D1F35}
+.filter-btn.active[data-f='tl']{background:var(--tl-color);border-color:var(--tl-color);color:#fff}
 @media(prefers-color-scheme:dark){
   :root:not([data-theme='light']) .filter-btn.active[data-f='prof']{color:#0D1F35}
 }
@@ -107,6 +113,8 @@ table.heatmap{border-collapse:collapse;min-width:820px;width:100%;font-variant-n
 .cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:13px}
 .prog-card{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--navy-3);border-radius:0 8px 8px 0;padding:15px 17px}
 .prog-card.prof{border-left-color:var(--gold)}
+.prog-card.tl{border-left-color:var(--tl-color)}
+.prog-card.tl .prog-stat{color:var(--tl-color)}
 .prog-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:9px}
 .prog-card-name{font-weight:600;font-size:13px;color:var(--text);line-height:1.3}
 .prog-stat{font-family:'Lora',serif;font-size:1.5rem;font-weight:500;color:var(--navy-3);line-height:1;white-space:nowrap}
@@ -114,6 +122,7 @@ table.heatmap{border-collapse:collapse;min-width:820px;width:100%;font-variant-n
 @media(prefers-color-scheme:dark){
   :root:not([data-theme='light']) .prog-stat{color:var(--sky)}
   :root:not([data-theme='light']) .prog-card.prof .prog-stat{color:var(--gold-2)}
+  :root:not([data-theme='light']) .prog-card.tl .prog-stat{color:var(--tl-light)}
 }
 .prog-detail{font-size:12px;color:var(--text-2);margin-top:5px;line-height:1.5}
 .prog-detail strong{color:var(--text)}
@@ -176,10 +185,10 @@ footer{max-width:1200px;margin:2.8rem auto 0;padding:1rem 2.5rem 0;font-size:11p
   </div>
   <div class="kpi-row">
     <div class="kpi"><span class="val">770</span><span class="lbl">Participantes</span></div>
+    <div class="kpi"><span class="val">21</span><span class="lbl">Programas · 3 tipos</span></div>
+    <div class="kpi"><span class="val">713</span><span class="lbl">Respuestas totales</span></div>
     <div class="kpi"><span class="val">Inv. Criminal</span><span class="lbl">Programa #1 — 10.4 %</span></div>
-    <div class="kpi"><span class="val">Vélez</span><span class="lbl">Ciudad más digital</span></div>
-    <div class="kpi"><span class="val">272 vs 224</span><span class="lbl">Tec. vs Prof. (respuestas)</span></div>
-    <div class="kpi"><span class="val">3.1 %</span><span class="lbl">Sin preferencia</span></div>
+    <div class="kpi"><span class="val">Aux. Enfermería</span><span class="lbl">TL #1 — 6.9 %</span></div>
   </div>
 </header>
 
@@ -188,9 +197,10 @@ footer{max-width:1200px;margin:2.8rem auto 0;padding:1rem 2.5rem 0;font-size:11p
 <!-- FILTROS GLOBALES -->
 <div style="margin-top:1.8rem">
   <div class="filter-bar" id="filterBar">
-    <button class="filter-btn active" data-f="all" onclick="applyFilter(this,'all')">📋 Todos los programas</button>
-    <button class="filter-btn" data-f="tec" onclick="applyFilter(this,'tec')">🔵 Solo Tecnológicos</button>
-    <button class="filter-btn" data-f="prof" onclick="applyFilter(this,'prof')">🟡 Solo Pregrado (Profesionales)</button>
+    <button class="filter-btn active" data-f="all" onclick="applyFilter(this,'all')">📋 Todos</button>
+    <button class="filter-btn" data-f="tl" onclick="applyFilter(this,'tl')">🟢 Técnicos Laborales</button>
+    <button class="filter-btn" data-f="tec" onclick="applyFilter(this,'tec')">🔵 Tecnológicos</button>
+    <button class="filter-btn" data-f="prof" onclick="applyFilter(this,'prof')">🟡 Pregrado Profesional</button>
   </div>
   <p style="font-size:11px;color:var(--text-3);margin-bottom:0">Los filtros aplican a todas las secciones del informe simultáneamente.</p>
 </div>
@@ -203,9 +213,10 @@ footer{max-width:1200px;margin:2.8rem auto 0;padding:1rem 2.5rem 0;font-size:11p
   </div>
   <div class="bar-list" id="barList"></div>
   <div style="margin-top:10px;display:flex;gap:14px;flex-wrap:wrap;align-items:center">
-    <span><span class="badge-tipo badge-tec">Tecnológico</span></span>
-    <span><span class="badge-tipo badge-prof">Profesional</span></span>
-    <span><span class="badge-virtual">🌐 Virtual</span> = modalidad 100 % en línea</span>
+    <span><span class="badge-tipo badge-tl">TL</span> Técnico Laboral</span>
+    <span><span class="badge-tipo badge-tec">TEC</span> Tecnológico</span>
+    <span><span class="badge-tipo badge-prof">PROF</span> Pregrado Profesional</span>
+    <span><span class="badge-virtual">🌐 Virtual</span> = oferta en línea</span>
   </div>
 </div>
 
@@ -325,44 +336,100 @@ footer{max-width:1200px;margin:2.8rem auto 0;padding:1rem 2.5rem 0;font-size:11p
 let currentFilter='all';
 
 const DATA = {
+  // ── Ranking unificado 21 programas (orden por pct desc) ─────────────────
   global:[
     {label:'Invest. Criminal',    tipo:'tec', n:80, pct:10.4, virtual:false},
-    {label:'Marketing Digital',   tipo:'tec', n:78, pct:10.1, virtual:true},
+    {label:'Mkt Digital',         tipo:'tec', n:78, pct:10.1, virtual:true },
     {label:'Sistemas Inform.',    tipo:'tec', n:56, pct:7.3,  virtual:false},
-    {label:'Desarrollo Software', tipo:'prof',n:54, pct:7.0,  virtual:true},
-    {label:'Marketing Digital',   tipo:'prof',n:51, pct:6.6,  virtual:true},
+    {label:'Soft. Desarrollo',    tipo:'prof',n:54, pct:7.0,  virtual:true },
+    {label:'Aux. Enfermería',     tipo:'tl',  n:53, pct:6.9,  virtual:false},
+    {label:'Mkt Digital',         tipo:'prof',n:51, pct:6.6,  virtual:true },
     {label:'Arquitectura',        tipo:'prof',n:44, pct:5.7,  virtual:false},
-    {label:'Derecho Virtual',     tipo:'prof',n:42, pct:5.5,  virtual:true},
+    {label:'Derecho Virtual',     tipo:'prof',n:42, pct:5.5,  virtual:true },
+    {label:'Recreación/Deporte',  tipo:'tl',  n:40, pct:5.2,  virtual:false},
+    {label:'Turismo Bilingüe',    tipo:'tl',  n:38, pct:4.9,  virtual:false},
     {label:'Ing. Agronómica',     tipo:'prof',n:33, pct:4.3,  virtual:false},
     {label:'Radiodiagnóstico',    tipo:'tec', n:24, pct:3.1,  virtual:false},
+    {label:'Lab. Clínico',        tipo:'tl',  n:23, pct:3.0,  virtual:false},
     {label:'Prod. Agroindustrial',tipo:'tec', n:21, pct:2.7,  virtual:false},
+    {label:'Medios Audiovisuales',tipo:'tl',  n:20, pct:2.6,  virtual:false},
+    {label:'Mercaderista',        tipo:'tl',  n:16, pct:2.1,  virtual:false},
     {label:'Especies Menores',    tipo:'tec', n:13, pct:1.7,  virtual:false},
+    {label:'Talento Humano',      tipo:'tl',  n:13, pct:1.7,  virtual:false},
+    {label:'Compras/Inventarios', tipo:'tl',  n:6,  pct:0.8,  virtual:false},
+    {label:'Cuidados Personales', tipo:'tl',  n:4,  pct:0.5,  virtual:false},
+    {label:'Nómina',              tipo:'tl',  n:4,  pct:0.5,  virtual:false},
   ],
-  colOrder:['InvCrim','MktTec','Sist','Soft','Mkt','Arquit','Der','Agron','Radio','Prod','Esp'],
-  colShort:{InvCrim:'Inv.Criminal',MktTec:'Mkt Tec.',Sist:'Sistemas',Soft:'Software',Mkt:'Mkt Prof.',Arquit:'Arquit.',Der:'Derecho',Agron:'Agron.',Radio:'Radiolog.',Prod:'Prod.Agro',Esp:'Esp.Menores'},
-  colTipo:{InvCrim:'tec',MktTec:'tec',Sist:'tec',Radio:'tec',Prod:'tec',Esp:'tec',Soft:'prof',Mkt:'prof',Arquit:'prof',Der:'prof',Agron:'prof'},
+  // ── Columnas heatmap: TL primero, luego Tec, luego Prof ─────────────────
+  colOrder:[
+    'TL_Enf','TL_Rec','TL_Tur','TL_Lab','TL_Med','TL_Mer','TL_Tal','TL_Comp','TL_Cui','TL_Nom',
+    'InvCrim','MktTec','Sist','Radio','Prod','Esp',
+    'Soft','Mkt','Arquit','Der','Agron'
+  ],
+  colShort:{
+    TL_Enf:'Aux.Enferm.',TL_Rec:'Recreación',TL_Tur:'Turismo',TL_Lab:'Lab.Clín.',TL_Med:'Medios AV',
+    TL_Mer:'Mercad.',TL_Tal:'Talento H.',TL_Comp:'Compras',TL_Cui:'Cuid.Pers.',TL_Nom:'Nómina',
+    InvCrim:'Inv.Crim.',MktTec:'Mkt Tec.',Sist:'Sistemas',Radio:'Radiolog.',Prod:'Prod.Agro',Esp:'Esp.Men.',
+    Soft:'Software',Mkt:'Mkt Prof.',Arquit:'Arquit.',Der:'Derecho V.',Agron:'Ing.Agron.'
+  },
+  colTipo:{
+    TL_Enf:'tl',TL_Rec:'tl',TL_Tur:'tl',TL_Lab:'tl',TL_Med:'tl',TL_Mer:'tl',TL_Tal:'tl',TL_Comp:'tl',TL_Cui:'tl',TL_Nom:'tl',
+    InvCrim:'tec',MktTec:'tec',Sist:'tec',Radio:'tec',Prod:'tec',Esp:'tec',
+    Soft:'prof',Mkt:'prof',Arquit:'prof',Der:'prof',Agron:'prof'
+  },
+  // ── Fichas (21 programas) ───────────────────────────────────────────────
   fichas:[
-    {label:'Tec. Investigación Criminal',    tipo:'tec',  virtual:false,n:80,pct:10.4,top:'Bucaramanga',topPct:20.8,rec:'Alta prioridad en Santander; evaluar convenio con Fiscalía u organismos de seguridad para práctica profesional.'},
+    // — Tecnológicos —
+    {label:'Tec. Investigación Criminal',    tipo:'tec',  virtual:false,n:80,pct:10.4,top:'Bucaramanga',topPct:20.8,rec:'Alta prioridad en Santander; evaluar convenio con Fiscalía u organismos de seguridad para práctica.'},
     {label:'Tec. Marketing Digital',          tipo:'tec',  virtual:true, n:78,pct:10.1,top:'Vélez',      topPct:22.1,rec:'Alta aptitud para virtualidad — captura demanda dispersa en toda la región sin necesidad de sede.'},
     {label:'Tec. Sistemas Informáticos',      tipo:'tec',  virtual:false,n:56,pct:7.3, top:'Barbosa',    topPct:14.6,rec:'Oferta diferenciada en Barbosa; articular con ecosistema TI del oriente santandereano.'},
-    {label:'Prof. Desarrollo de Software',    tipo:'prof', virtual:true, n:54,pct:7.0, top:'Vélez',      topPct:12.5,rec:'Modalidad 100 % virtual — diseñado para alcanzar municipios sin sede física de la UDES.'},
-    {label:'Prof. Marketing Digital',         tipo:'prof', virtual:true, n:51,pct:6.6, top:'Vélez',      topPct:10.6,rec:'Ofrecer trayectoria progresiva Tec. Marketing → Prof. Marketing; alta aptitud virtual.'},
-    {label:'Prof. Arquitectura',              tipo:'prof', virtual:false,n:44,pct:5.7, top:'Los Santos', topPct:20.8,rec:'Interés concentrado en municipios pequeños; analizar factibilidad de extensión presencial.'},
-    {label:'Prof. Derecho Virtual',           tipo:'prof', virtual:true, n:42,pct:5.5, top:'Barbosa',    topPct:11.2,rec:'Programa diseñado 100 % en línea — distribución geográfica de demanda es una ventaja, no un obstáculo.'},
-    {label:'Prof. Ingeniería Agronómica',     tipo:'prof', virtual:false,n:33,pct:4.3, top:'Charalá',    topPct:14.6,rec:'Perfil rural de Charalá y Arauca respalda la pertinencia; priorizar convenios agropecuarios.'},
     {label:'Tec. Radiodiagnóstico',           tipo:'tec',  virtual:false,n:24,pct:3.1, top:'Vélez',      topPct:7.7, rec:'Demanda moderada; articular con programas de salud ya ofertados por la UDES.'},
     {label:'Tec. Producción Agroindustrial',  tipo:'tec',  virtual:false,n:21,pct:2.7, top:'Vélez',      topPct:2.9, rec:'Demanda baja y dispersa; evaluar viabilidad conjunta con Ing. Agronómica.'},
     {label:'Tec. Especies Menores',           tipo:'tec',  virtual:false,n:13,pct:1.7, top:'Vélez',      topPct:4.8, rec:'Nicho muy específico; analizar pertinencia con sector ganadero local antes de invertir.'},
+    // — Profesionales —
+    {label:'Prof. Desarrollo de Software',    tipo:'prof', virtual:true, n:54,pct:7.0, top:'Vélez',      topPct:12.5,rec:'Modalidad 100 % virtual — diseñado para alcanzar municipios sin sede física de la UDES.'},
+    {label:'Prof. Marketing Digital',         tipo:'prof', virtual:true, n:51,pct:6.6, top:'Vélez',      topPct:10.6,rec:'Ofrecer trayectoria progresiva Tec. Marketing → Prof. Marketing; alta aptitud virtual.'},
+    {label:'Prof. Arquitectura',              tipo:'prof', virtual:false,n:44,pct:5.7, top:'Los Santos', topPct:20.8,rec:'Interés concentrado en municipios pequeños; analizar factibilidad de extensión presencial.'},
+    {label:'Prof. Derecho Virtual',           tipo:'prof', virtual:true, n:42,pct:5.5, top:'Barbosa',    topPct:11.2,rec:'Programa 100 % en línea — la distribución geográfica de la demanda es una ventaja, no un obstáculo.'},
+    {label:'Prof. Ingeniería Agronómica',     tipo:'prof', virtual:false,n:33,pct:4.3, top:'Charalá',    topPct:14.6,rec:'Perfil rural de Charalá y Arauca respalda la pertinencia; priorizar convenios agropecuarios.'},
+    // — Técnicos Laborales —
+    {label:'TL. Aux. Enfermería',             tipo:'tl',   virtual:false,n:53,pct:6.9, top:'Charalá',    topPct:14.6,rec:'Demanda consistente en toda la región; señal de vocación sanitaria. Prioridad alta para apertura.'},
+    {label:'TL. Recreación y Deporte',        tipo:'tl',   virtual:false,n:40,pct:5.2, top:'Bucaramanga',topPct:25.0,rec:'Perfil urbano marcado; evaluar oferta presencial en Bucaramanga; demanda dispersa en el resto.'},
+    {label:'TL. Turismo Bilingüe',            tipo:'tl',   virtual:false,n:38,pct:4.9, top:'Bucaramanga',topPct:16.7,rec:'Requiere inglés; priorizar ciudades con mayor actividad turística o vocación de servicios.'},
+    {label:'TL. Laboratorio Clínico',         tipo:'tl',   virtual:false,n:23,pct:3.0, top:'Socorro',    topPct:15.4,rec:'Socorro y Vélez con perfil clínico fuerte; articular con laboratorios hospitalarios locales.'},
+    {label:'TL. Medios Audiovisuales',        tipo:'tl',   virtual:false,n:20,pct:2.6, top:'Los Santos', topPct:12.5,rec:'Demanda dispersa; evaluar modalidad virtual para mayor alcance regional.'},
+    {label:'TL. Mercaderista',                tipo:'tl',   virtual:false,n:16,pct:2.1, top:'Socorro',    topPct:7.7, rec:'Nicho comercial; evaluar convenio con sector retail de la región.'},
+    {label:'TL. Talento Humano',              tipo:'tl',   virtual:false,n:13,pct:1.7, top:'Socorro',    topPct:15.4,rec:'Socorro concentra la demanda administrativa; potencial en sector PYME local.'},
+    {label:'TL. Compras e Inventarios',       tipo:'tl',   virtual:false,n:6, pct:0.8, top:'Los Santos', topPct:4.2, rec:'Demanda muy baja; evaluar viabilidad económica antes de abrir oferta.'},
+    {label:'TL. Cuidados Personales',         tipo:'tl',   virtual:false,n:4, pct:0.5, top:'Bucaramanga',topPct:4.2, rec:'Demanda mínima; no priorizar apertura en el corto plazo.'},
+    {label:'TL. Nómina',                      tipo:'tl',   virtual:false,n:4, pct:0.5, top:'Socorro',    topPct:7.7, rec:'Demanda muy baja; evaluar fusión curricular con Talento Humano.'},
   ],
+  // ── Ciudades: Tec, Prof y TL por ciudad ────────────────────────────────
   ciudades:[
-    {c:'Arauca',     n:309,tec:60,prof:46,d:{InvCrim:5.8, MktTec:6.8, Sist:2.6, Soft:2.6, Mkt:3.6, Arquit:2.6, Der:2.9, Agron:3.2, Radio:1.6, Prod:1.9, Esp:0.6}},
-    {c:'Vélez',      n:104,tec:67,prof:46,d:{InvCrim:16.3,MktTec:22.1,Sist:10.6,Soft:12.5,Mkt:10.6,Arquit:9.6, Der:8.7, Agron:2.9, Radio:7.7, Prod:2.9, Esp:4.8}},
-    {c:'San Gil',    n:94, tec:28,prof:23,d:{InvCrim:8.5, MktTec:7.4, Sist:7.4, Soft:6.4, Mkt:5.3, Arquit:5.3, Der:6.4, Agron:1.1, Radio:4.3, Prod:1.1, Esp:1.1}},
-    {c:'Barbosa',    n:89, tec:39,prof:41,d:{InvCrim:11.2,MktTec:11.2,Sist:14.6,Soft:13.5,Mkt:11.2,Arquit:3.4, Der:11.2,Agron:6.7, Radio:1.1, Prod:2.2, Esp:3.4}},
-    {c:'Charalá',    n:41, tec:16,prof:24,d:{InvCrim:19.5,MktTec:4.9, Sist:7.3, Soft:17.1,Mkt:7.3, Arquit:12.2,Der:7.3, Agron:14.6,Radio:2.4, Prod:2.4, Esp:2.4}},
-    {c:'Bucaramanga',n:24, tec:9, prof:5, d:{InvCrim:20.8,MktTec:8.3, Sist:8.3, Soft:4.2, Mkt:8.3, Arquit:4.2, Der:4.2, Agron:0.0, Radio:0.0, Prod:0.0, Esp:0.0}},
-    {c:'Los Santos', n:24, tec:17,prof:16,d:{InvCrim:20.8,MktTec:20.8,Sist:16.7,Soft:12.5,Mkt:12.5,Arquit:20.8,Der:8.3, Agron:12.5,Radio:12.5,Prod:0.0, Esp:0.0}},
-    {c:'Socorro',    n:13, tec:7, prof:6, d:{InvCrim:0.0, MktTec:23.1,Sist:7.7, Soft:7.7, Mkt:23.1,Arquit:7.7, Der:0.0, Agron:7.7, Radio:15.4,Prod:7.7, Esp:0.0}},
+    {c:'Arauca',     n:309,tec:60,prof:46,tl:11.6,
+      d:{InvCrim:5.8, MktTec:6.8, Sist:2.6, Soft:2.6, Mkt:3.6, Arquit:2.6, Der:2.9, Agron:3.2, Radio:1.6, Prod:1.9, Esp:0.6},
+      tld:{TL_Enf:4.2,TL_Rec:2.6,TL_Tur:1.3,TL_Lab:0.6,TL_Med:1.0,TL_Mer:1.0,TL_Tal:0.6,TL_Comp:0.0,TL_Cui:0.3,TL_Nom:0.0}},
+    {c:'Vélez',      n:104,tec:67,prof:46,tl:50.0,
+      d:{InvCrim:16.3,MktTec:22.1,Sist:10.6,Soft:12.5,Mkt:10.6,Arquit:9.6, Der:8.7, Agron:2.9, Radio:7.7, Prod:2.9, Esp:4.8},
+      tld:{TL_Enf:11.5,TL_Rec:4.8,TL_Tur:10.6,TL_Lab:12.5,TL_Med:2.9,TL_Mer:2.9,TL_Tal:1.0,TL_Comp:1.9,TL_Cui:0.0,TL_Nom:1.9}},
+    {c:'San Gil',    n:94, tec:28,prof:23,tl:31.0,
+      d:{InvCrim:8.5, MktTec:7.4, Sist:7.4, Soft:6.4, Mkt:5.3, Arquit:5.3, Der:6.4, Agron:1.1, Radio:4.3, Prod:1.1, Esp:1.1},
+      tld:{TL_Enf:6.4,TL_Rec:5.3,TL_Tur:6.4,TL_Lab:1.1,TL_Med:4.3,TL_Mer:5.3,TL_Tal:1.1,TL_Comp:1.1,TL_Cui:0.0,TL_Nom:0.0}},
+    {c:'Barbosa',    n:89, tec:39,prof:41,tl:38.2,
+      d:{InvCrim:11.2,MktTec:11.2,Sist:14.6,Soft:13.5,Mkt:11.2,Arquit:3.4, Der:11.2,Agron:6.7, Radio:1.1, Prod:2.2, Esp:3.4},
+      tld:{TL_Enf:12.4,TL_Rec:5.6,TL_Tur:9.0,TL_Lab:3.4,TL_Med:2.2,TL_Mer:2.2,TL_Tal:3.4,TL_Comp:0.0,TL_Cui:0.0,TL_Nom:0.0}},
+    {c:'Charalá',    n:41, tec:16,prof:24,tl:38.9,
+      d:{InvCrim:19.5,MktTec:4.9, Sist:7.3, Soft:17.1,Mkt:7.3, Arquit:12.2,Der:7.3, Agron:14.6,Radio:2.4, Prod:2.4, Esp:2.4},
+      tld:{TL_Enf:14.6,TL_Rec:9.8,TL_Tur:0.0,TL_Lab:2.4,TL_Med:4.9,TL_Mer:0.0,TL_Tal:2.4,TL_Comp:2.4,TL_Cui:2.4,TL_Nom:0.0}},
+    {c:'Bucaramanga',n:24, tec:9, prof:5, tl:62.7,
+      d:{InvCrim:20.8,MktTec:8.3, Sist:8.3, Soft:4.2, Mkt:8.3, Arquit:4.2, Der:4.2, Agron:0.0, Radio:0.0, Prod:0.0, Esp:0.0},
+      tld:{TL_Enf:0.0,TL_Rec:25.0,TL_Tur:16.7,TL_Lab:4.2,TL_Med:4.2,TL_Mer:4.2,TL_Tal:4.2,TL_Comp:0.0,TL_Cui:4.2,TL_Nom:0.0}},
+    {c:'Los Santos', n:24, tec:17,prof:16,tl:75.1,
+      d:{InvCrim:20.8,MktTec:20.8,Sist:16.7,Soft:12.5,Mkt:12.5,Arquit:20.8,Der:8.3, Agron:12.5,Radio:12.5,Prod:0.0, Esp:0.0},
+      tld:{TL_Enf:12.5,TL_Rec:16.7,TL_Tur:8.3,TL_Lab:0.0,TL_Med:12.5,TL_Mer:4.2,TL_Tal:8.3,TL_Comp:4.2,TL_Cui:4.2,TL_Nom:4.2}},
+    {c:'Socorro',    n:13, tec:7, prof:6, tl:61.6,
+      d:{InvCrim:0.0, MktTec:23.1,Sist:7.7, Soft:7.7, Mkt:23.1,Arquit:7.7, Der:0.0, Agron:7.7, Radio:15.4,Prod:7.7, Esp:0.0},
+      tld:{TL_Enf:7.7,TL_Rec:7.7,TL_Tur:0.0,TL_Lab:15.4,TL_Med:0.0,TL_Mer:7.7,TL_Tal:15.4,TL_Comp:0.0,TL_Cui:0.0,TL_Nom:7.7}},
   ]
 };
 
@@ -394,7 +461,9 @@ function renderBars(){
     const rankCls=rank===1?' top1':rank===2?' top2':'';
     const badge=d.tipo==='tec'
       ?'<span class="badge-tipo badge-tec">TEC</span>'
-      :'<span class="badge-tipo badge-prof">PROF</span>';
+      :d.tipo==='prof'
+      ?'<span class="badge-tipo badge-prof">PROF</span>'
+      :'<span class="badge-tipo badge-tl">TL</span>';
     const virtBadge=d.virtual?'<span class="badge-virtual">🌐 Virtual</span>':'';
     return `<div class="bar-row${hide?' hidden':''}">
       <div class="bar-label">${d.label}${badge}${virtBadge}</div>
@@ -405,8 +474,11 @@ function renderBars(){
   // Update note
   const note=document.getElementById('rankingNote');
   if(note){
-    const shown=currentFilter==='all'?11:filtered.length;
-    const label=currentFilter==='all'?'11 programas':currentFilter==='tec'?`${shown} Tecnológicos`:`${shown} Profesionales`;
+    const shown=currentFilter==='all'?21:filtered.length;
+    const label=currentFilter==='all'?'21 programas'
+      :currentFilter==='tec'?`${shown} Tecnológicos`
+      :currentFilter==='prof'?`${shown} Profesionales`
+      :`${shown} Técnicos Laborales`;
     note.textContent=`${label} · 770 participantes · multi-selección`;
   }
 }
@@ -415,11 +487,28 @@ function renderBars(){
 let donutInst=null,barInst=null;
 function renderCharts(){
   const dark=isDark();
+  const tlGreen=dark?'#3DB87A':'#1E6B45';
   const navy=dark?'#1A3560':'#0C2340';
   const gold=dark?'#E8BF45':'#C9A227';
   const textC=dark?'#C8DCF0':'#0D1F35';
   const gridC=dark?'rgba(200,220,240,.1)':'rgba(12,35,64,.08)';
   const bgC=dark?'#0A1628':'#F4F7FB';
+
+  // Totales según filtro activo
+  const tlTotal=217, tecTotal=272, profTotal=224, grandTotal=713;
+  let donutData, donutLabels, donutColors, donutTotal;
+  if(currentFilter==='tl'){
+    donutData=[tlTotal]; donutLabels=['Téc. Laborales']; donutColors=[tlGreen]; donutTotal=tlTotal;
+  } else if(currentFilter==='tec'){
+    donutData=[tecTotal]; donutLabels=['Tecnológicos']; donutColors=[navy]; donutTotal=tecTotal;
+  } else if(currentFilter==='prof'){
+    donutData=[profTotal]; donutLabels=['Profesionales']; donutColors=[gold]; donutTotal=profTotal;
+  } else {
+    donutData=[tlTotal,tecTotal,profTotal];
+    donutLabels=['Téc. Laborales','Tecnológicos','Profesionales'];
+    donutColors=[tlGreen,navy,gold];
+    donutTotal=grandTotal;
+  }
 
   // Plugin: texto central del donut
   const centerTextPlugin={
@@ -433,7 +522,7 @@ function renderCharts(){
       ctx.textAlign='center';ctx.textBaseline='middle';
       ctx.fillStyle=textC;
       ctx.font=`bold 1.35rem 'IBM Plex Sans',system-ui`;
-      ctx.fillText('496',cx,cy-9);
+      ctx.fillText(String(donutTotal),cx,cy-9);
       ctx.font=`0.62rem 'IBM Plex Sans',system-ui`;
       ctx.fillStyle=dark?'#7AA0C4':'#4A6080';
       ctx.fillText('respuestas',cx,cy+9);
@@ -446,10 +535,10 @@ function renderCharts(){
     type:'doughnut',
     plugins:[ChartDataLabels,centerTextPlugin],
     data:{
-      labels:['Tecnológicos','Profesionales'],
+      labels:donutLabels,
       datasets:[{
-        data:[272,224],
-        backgroundColor:[navy,gold],
+        data:donutData,
+        backgroundColor:donutColors,
         borderColor:bgC,
         borderWidth:3,
         hoverOffset:6
@@ -467,7 +556,7 @@ function renderCharts(){
             generateLabels(chart){
               const ds=chart.data.datasets[0];
               return chart.data.labels.map((lbl,i)=>({
-                text:`${lbl}  ${ds.data[i]} resp. (${((ds.data[i]/496)*100).toFixed(1)}%)`,
+                text:`${lbl}  ${ds.data[i]} resp. (${((ds.data[i]/donutTotal)*100).toFixed(1)}%)`,
                 fillStyle:ds.backgroundColor[i],
                 strokeStyle:bgC,
                 lineWidth:2,
@@ -476,13 +565,13 @@ function renderCharts(){
             }
           }
         },
-        tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} resp. (${((ctx.parsed/496)*100).toFixed(1)}%)`}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} resp. (${((ctx.parsed/donutTotal)*100).toFixed(1)}%)`}},
         datalabels:{
           color:'#fff',
           font:{size:13,weight:'bold',family:'IBM Plex Sans'},
           textAlign:'center',
           formatter:(value)=>{
-            const pct=((value/496)*100).toFixed(1);
+            const pct=((value/donutTotal)*100).toFixed(1);
             return `${pct}%\n${value} resp.`;
           },
           textShadowColor:'rgba(0,0,0,.35)',
@@ -494,11 +583,13 @@ function renderCharts(){
 
   if(barInst)barInst.destroy();
   const labels=DATA.ciudades.map(c=>c.c);
+  const tlD=DATA.ciudades.map(c=>+(c.tl).toFixed(1));
   const tecD=DATA.ciudades.map(c=>+(c.tec/c.n*100).toFixed(1));
   const profD=DATA.ciudades.map(c=>+(c.prof/c.n*100).toFixed(1));
   const datasets=[];
-  if(currentFilter!=='prof') datasets.push({label:'Tecnológicos',data:tecD,backgroundColor:navy+'CC',borderRadius:3});
-  if(currentFilter!=='tec')  datasets.push({label:'Profesionales',data:profD,backgroundColor:gold+'CC',borderRadius:3});
+  if(currentFilter==='all'||currentFilter==='tl')  datasets.push({label:'Téc. Laborales',data:tlD, backgroundColor:tlGreen+'CC',borderRadius:3});
+  if(currentFilter==='all'||currentFilter==='tec')  datasets.push({label:'Tecnológicos', data:tecD,backgroundColor:navy+'CC',borderRadius:3});
+  if(currentFilter==='all'||currentFilter==='prof') datasets.push({label:'Profesionales',data:profD,backgroundColor:gold+'CC',borderRadius:3});
   barInst=new Chart(document.getElementById('barChart').getContext('2d'),{
     type:'bar',
     data:{labels,datasets},
@@ -520,6 +611,13 @@ function renderCharts(){
 // Virtual cols
 const VIRTUAL_COLS={MktTec:true,Soft:true,Mkt:true,Der:true};
 
+// Colores de encabezado por tipo de columna (fondos tenues)
+const TIPO_HDR={
+  tl:  {bg:'rgba(30,107,69,.13)', txt:'#1E6B45'},
+  tec: {bg:'rgba(12,35,64,.10)',  txt:'#0C2340'},
+  prof:{bg:'rgba(201,162,39,.15)',txt:'#7A5F00'}
+};
+
 // ── heatmap ──────────────────────────────────────────────────────────────
 function renderHeatmap(){
   const dark=isDark();
@@ -527,14 +625,18 @@ function renderHeatmap(){
   const cols=currentFilter==='all'?allCols:allCols.filter(c=>DATA.colTipo[c]===currentFilter);
   let h=`<thead><tr><th class="city-col">Municipio</th>`;
   cols.forEach(c=>{
+    const tipo=DATA.colTipo[c];
+    const hdr=TIPO_HDR[tipo];
     const virtMark=VIRTUAL_COLS[c]?' <span class="badge-virtual" style="font-size:8px">🌐</span>':'';
-    h+=`<th>${DATA.colShort[c]}${virtMark}</th>`;
+    h+=`<th style="background:${hdr.bg};color:${hdr.txt}">${DATA.colShort[c]}${virtMark}</th>`;
   });
   h+=`</tr></thead><tbody>`;
   DATA.ciudades.forEach(row=>{
     h+=`<tr><td class="city-name">${row.c}<span class="city-n">n = ${row.n}</span></td>`;
     cols.forEach(c=>{
-      const pct=row.d[c]||0;
+      const tipo=DATA.colTipo[c];
+      // TL columns read from tld; Tec/Prof from d
+      const pct=(tipo==='tl'?row.tld[c]:row.d[c])||0;
       const {bg,text}=heatColor(pct,dark);
       h+=pct===0
         ?`<td class="heat-cell"><div class="cell-inner cell-zero" style="background:${bg}">—</div></td>`
@@ -555,16 +657,18 @@ function renderHeatmap(){
 
 // ── cards ─────────────────────────────────────────────────────────────────
 function renderCards(){
+  const BADGE_MAP={
+    tl: '<span class="badge-tipo badge-tl">TL</span>',
+    tec:'<span class="badge-tipo badge-tec">TEC</span>',
+    prof:'<span class="badge-tipo badge-prof">PROF</span>'
+  };
+  const TYPE_LABEL={tl:'Técnico Laboral',tec:'Tecnológico',prof:'Profesional'};
   document.getElementById('cardsGrid').innerHTML=DATA.fichas.map(f=>{
-    const isPro=f.tipo==='prof';
     const hide=currentFilter!=='all'&&f.tipo!==currentFilter;
-    const virtBadge=f.virtual
-      ?'<span class="badge-virtual" style="margin-left:0;margin-top:4px;display:inline-block">🌐 Modalidad Virtual</span>'
-      :'';
-    return `<div class="prog-card ${isPro?'prof':''}${f.virtual?' virt':''}${hide?' hidden':''}">
+    return `<div class="prog-card ${f.tipo}${f.virtual?' virt':''}${hide?' hidden':''}">
       <div class="prog-card-header">
         <div class="prog-card-name">${f.label}<br>
-          <span class="badge-tipo ${isPro?'badge-prof':'badge-tec'}">${isPro?'Profesional':'Tecnológico'}</span>${f.virtual?'<span class="badge-virtual" style="margin-left:4px">🌐 Virtual</span>':''}
+          ${BADGE_MAP[f.tipo]}${f.virtual?'<span class="badge-virtual" style="margin-left:4px">🌐 Virtual</span>':''}
         </div>
         <div class="prog-stat">${f.pct}%</div>
       </div>
