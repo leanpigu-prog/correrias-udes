@@ -137,6 +137,17 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--surf-0);color:var
 .city-bar-total{font-size:10px;color:var(--txt-3);font-variant-numeric:tabular-nums;text-align:right}
 /* Floating tooltip */
 #seg-tip{position:fixed;z-index:999;background:var(--txt);color:var(--surf-0);font-size:11.5px;font-family:'Inter',sans-serif;padding:5px 10px;border-radius:6px;pointer-events:none;opacity:0;transition:opacity .12s;white-space:nowrap;line-height:1.5;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+/* City filter select */
+.filter-sep{align-self:stretch;width:1px;background:rgba(255,255,255,.18);margin:4px 4px}
+#cityFilter{font-family:'Plus Jakarta Sans',sans-serif;font-size:11.5px;font-weight:600;padding:4px 10px 4px 10px;border-radius:99px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:rgba(255,255,255,.65);cursor:pointer;appearance:none;-webkit-appearance:none;outline:none;transition:all .15s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,.45)'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
+#cityFilter:hover{background-color:rgba(255,255,255,.13);color:#fff}
+#cityFilter:focus{border-color:var(--tec);color:#fff}
+#cityFilter option{background:var(--navy);color:#fff}
+/* City bar row highlight */
+.city-bar-row.city-sel{background:var(--surf-2);border-radius:4px;outline:1.5px solid var(--border-2)}
+/* Heatmap row highlight */
+tr.city-sel-row td{background:rgba(37,99,235,.07)!important}
+tr.city-sel-row td.city-name{background:rgba(37,99,235,.11)!important}
 
 /* ── HEATMAP ── */
 .heatmap-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:10px}
@@ -228,6 +239,10 @@ footer{max-width:1200px;margin:3rem auto 0;padding:1rem 2rem 0;font-size:11px;co
       <button class="filter-btn" data-f="tl" onclick="applyFilter(this,'tl')">TL</button>
       <button class="filter-btn" data-f="tec" onclick="applyFilter(this,'tec')">Tec</button>
       <button class="filter-btn" data-f="prof" onclick="applyFilter(this,'prof')">Profesional</button>
+      <div class="filter-sep"></div>
+      <select id="cityFilter" onchange="applyCityFilter(this.value)">
+        <option value="all">Todos los municipios</option>
+      </select>
     </div>
   </div>
   <nav class="tab-nav">
@@ -247,8 +262,8 @@ footer{max-width:1200px;margin:3rem auto 0;padding:1rem 2rem 0;font-size:11px;co
 <div class="kpi-row">
   <div class="kpi-tile">
     <span class="kpi-icon">group</span>
-    <span class="kpi-val">2.157</span>
-    <span class="kpi-lbl">Participantes</span>
+    <span class="kpi-val" id="kpi-v-participants">2.157</span>
+    <span class="kpi-lbl" id="kpi-l-participants">Participantes</span>
   </div>
   <div class="kpi-tile">
     <span class="kpi-icon">ballot</span>
@@ -257,18 +272,18 @@ footer{max-width:1200px;margin:3rem auto 0;padding:1rem 2rem 0;font-size:11px;co
   </div>
   <div class="kpi-tile">
     <span class="kpi-icon">done_all</span>
-    <span class="kpi-val">2.140</span>
+    <span class="kpi-val" id="kpi-v-responses">2.140</span>
     <span class="kpi-lbl">Respuestas totales</span>
   </div>
   <div class="kpi-tile">
     <span class="kpi-icon">emoji_events</span>
-    <span class="kpi-val" style="font-size:1.05rem">Inv. Criminal</span>
-    <span class="kpi-lbl">Programa #1 — 11.8%</span>
+    <span class="kpi-val" id="kpi-v-top" style="font-size:1.05rem">Inv. Criminal</span>
+    <span class="kpi-lbl" id="kpi-l-top">Programa #1 — 11.8%</span>
   </div>
   <div class="kpi-tile">
     <span class="kpi-icon">flag</span>
-    <span class="kpi-val" style="font-size:1.05rem">Aux. Enfermería</span>
-    <span class="kpi-lbl">TL #1 — 7.3%</span>
+    <span class="kpi-val" id="kpi-v-tl" style="font-size:1.05rem">Aux. Enfermería</span>
+    <span class="kpi-lbl" id="kpi-l-tl">TL #1 — 7.3%</span>
   </div>
 </div>
 
@@ -298,7 +313,7 @@ footer{max-width:1200px;margin:3rem auto 0;padding:1rem 2rem 0;font-size:11px;co
   <div class="charts-row">
     <div class="chart-card">
       <h3>¿Hacia dónde apunta la demanda?</h3>
-      <p class="chart-note">De 2.140 respuestas totales, los Tecnológicos lideran seguidos de cerca por los Profesionales.</p>
+      <p class="chart-note" id="donutNote">De 2.140 respuestas totales, los Tecnológicos lideran seguidos de cerca por los Profesionales.</p>
       <div class="donut-wrap">
         <svg id="donutSvg" viewBox="0 0 160 160" width="160" height="160">
           <circle cx="80" cy="80" r="60" fill="none" stroke="var(--surf-2)" stroke-width="22"/>
@@ -517,6 +532,42 @@ const DATA = {
   ]
 };
 
+// ── Ciudad filter ─────────────────────────────────────────────────────────
+let currentCity='all';
+
+// Mapeo label|tipo → clave en city.d / city.tld (short labels de DATA.global y long de DATA.fichas)
+const COLKEY={
+  'Invest. Criminal|tec':'InvCrim',           'Tec. Investigación Criminal|tec':'InvCrim',
+  'Mkt Digital|tec':'MktTec',                 'Tec. Marketing Digital|tec':'MktTec',
+  'Mkt Digital|prof':'Mkt',                   'Prof. Marketing Digital|prof':'Mkt',
+  'Aux. Enfermería|tl':'TL_Enf',              'TL. Aux. Enfermería|tl':'TL_Enf',
+  'Turismo Bilingüe|tl':'TL_Tur',             'TL. Turismo Bilingüe|tl':'TL_Tur',
+  'Sistemas Inform.|tec':'Sist',              'Tec. Sistemas Informáticos|tec':'Sist',
+  'Soft. Desarrollo|prof':'Soft',             'Prof. Desarrollo de Software|prof':'Soft',
+  'Arquitectura|prof':'Arquit',               'Prof. Arquitectura|prof':'Arquit',
+  'Derecho Virtual|prof':'Der',               'Prof. Derecho Virtual|prof':'Der',
+  'Recreación/Deporte|tl':'TL_Rec',           'TL. Recreación y Deporte|tl':'TL_Rec',
+  'Ing. Agronómica|prof':'Agron',             'Prof. Ingeniería Agronómica|prof':'Agron',
+  'Medios Audiovisuales|tl':'TL_Med',         'TL. Medios Audiovisuales|tl':'TL_Med',
+  'Radiodiagnóstico|tec':'Radio',             'Tec. Radiodiagnóstico|tec':'Radio',
+  'Lab. Clínico|tl':'TL_Lab',                 'TL. Laboratorio Clínico|tl':'TL_Lab',
+  'Prod. Agroindustrial|tec':'Prod',          'Tec. Producción Agroindustrial|tec':'Prod',
+  'Mercaderista|tl':'TL_Mer',                 'TL. Mercaderista|tl':'TL_Mer',
+  'Compras/Inventarios|tl':'TL_Comp',         'TL. Compras e Inventarios|tl':'TL_Comp',
+  'Especies Menores|tec':'Esp',               'Tec. Especies Menores|tec':'Esp',
+  'Talento Humano|tl':'TL_Tal',               'TL. Talento Humano|tl':'TL_Tal',
+  'Cuidados Personales|tl':'TL_Cui',          'TL. Cuidados Personales|tl':'TL_Cui',
+  'Nómina|tl':'TL_Nom',                       'TL. Nómina|tl':'TL_Nom'
+};
+function getCityRow(){
+  return currentCity==='all'?null:DATA.ciudades.find(r=>r.c===currentCity);
+}
+function cityPct(city,d){
+  const k=COLKEY[d.label+'|'+d.tipo];
+  if(!k)return 0;
+  return d.tipo==='tl'?(city.tld[k]||0):(city.d[k]||0);
+}
+
 // ── utils ─────────────────────────────────────────────────────────────────
 function isDark(){
   const a=document.documentElement.getAttribute('data-theme');
@@ -539,12 +590,21 @@ function heatColor(pct,dark){
 // ── bars ─────────────────────────────────────────────────────────────────
 function renderBars(){
   const el=document.getElementById('barList');
-  const filtered=currentFilter==='all'?DATA.global:DATA.global.filter(d=>d.tipo===currentFilter);
-  const max=filtered[0]?.pct||DATA.global[0].pct;
-  let rank=0;
-  el.innerHTML=DATA.global.map(d=>{
+  const city=getCityRow();
+  // Si hay ciudad: derivar n/pct desde datos del municipio y re-ordenar por relevancia local
+  let source;
+  if(city){
+    source=DATA.global.map(d=>{
+      const p=cityPct(city,d);
+      return{...d,pct:p,n:Math.round(city.n*p/100)};
+    }).sort((a,b)=>b.pct-a.pct);
+  } else {
+    source=DATA.global;
+  }
+  const filtered=currentFilter==='all'?source:source.filter(d=>d.tipo===currentFilter);
+  const max=filtered[0]?.pct||1;
+  el.innerHTML=source.map(d=>{
     const hide=currentFilter!=='all'&&d.tipo!==currentFilter;
-    if(!hide)rank++;
     const badge=d.tipo==='tec'
       ?'<span class="badge badge-tec">TEC</span>'
       :d.tipo==='prof'
@@ -553,25 +613,40 @@ function renderBars(){
     const virtBadge=d.virtual?'<span class="badge-virtual">🌐 Virtual</span>':'';
     return `<div class="bar-row${hide?' hidden':''}">
       <div class="bar-label">${d.label}${badge}${virtBadge}</div>
-      <div class="bar-track"><div class="bar-fill ${d.tipo}" style="width:${(d.pct/max*100).toFixed(1)}%"></div></div>
-      <div class="bar-val">${d.n} <span style="color:var(--txt-3)">${d.pct}%</span></div>
+      <div class="bar-track"><div class="bar-fill ${d.tipo}" style="width:${max>0?(d.pct/max*100).toFixed(1):0}%"></div></div>
+      <div class="bar-val">${d.n} <span style="color:var(--txt-3)">${d.pct.toFixed(1)}%</span></div>
     </div>`;
   }).join('');
   const note=document.getElementById('rankingNote');
   if(note){
-    const shown=currentFilter==='all'?21:filtered.length;
-    const label=currentFilter==='all'?'21 programas'
+    const shown=currentFilter==='all'?source.length:filtered.length;
+    const label=currentFilter==='all'?`${shown} programas`
       :currentFilter==='tec'?`${shown} Tecnológicos`
       :currentFilter==='prof'?`${shown} Profesionales`
       :`${shown} Técnicos Laborales`;
-    note.textContent=`${label} · 2.157 participantes · multi-selección`;
+    const cityPart=city?`· ${city.c} (n=${city.n})`:'· 2.157 participantes';
+    note.textContent=`${label} ${cityPart} · multi-selección`;
   }
 }
 
 // ── SVG Donut + CSS City Bars ─────────────────────────────────────────────
 function renderCharts(){
-  // Totales
-  const tlTotal=724,tecTotal=789,profTotal=627,grandTotal=2140;
+  // Totales — dinámicos según ciudad seleccionada
+  const city=getCityRow();
+  const tlTotal =city?Math.round(city.n*city.tl/100):724;
+  const tecTotal=city?city.tec:789;
+  const profTotal=city?city.prof:627;
+  const grandTotal=city?city.n:2140;
+  // Actualizar nota del donut
+  const dn=document.getElementById('donutNote');
+  if(dn){
+    if(city){
+      const resp=tlTotal+tecTotal+profTotal;
+      dn.textContent=`${city.c} · ${city.n} participantes · ${resp} respuestas totales`;
+    } else {
+      dn.textContent='De 2.140 respuestas totales, los Tecnológicos lideran seguidos de cerca por los Profesionales.';
+    }
+  }
   let segs,total;
   if(currentFilter==='tl')     {segs=[{v:tlTotal,  cls:'tl',  lbl:'Téc. Laborales'}];total=tlTotal;}
   else if(currentFilter==='tec'){segs=[{v:tecTotal, cls:'tec', lbl:'Tecnológicos'}];  total=tecTotal;}
@@ -642,7 +717,8 @@ function renderCharts(){
     const tipTl =`Téc. Laborales: ${tlPct.toFixed(1)}%  ·  ${tlN} resp.`;
     const tipTec=`Tecnológicos: ${tecPct.toFixed(1)}%  ·  ${row.tec} resp.`;
     const tipProf=`Profesionales: ${profPct.toFixed(1)}%  ·  ${row.prof} resp.`;
-    return `<div class="city-bar-row">
+    const isCitySel=currentCity!=='all'&&row.c===currentCity;
+    return `<div class="city-bar-row${isCitySel?' city-sel':''}">
       <div class="city-bar-label">${row.c}<span class="city-bar-n">n=${row.n}</span></div>
       <div class="city-bar-stack">
         ${showTl?`<div class="city-seg tl" style="width:${toW(tlPct)}" data-tip="${tipTl}"></div>`:''}
@@ -676,7 +752,8 @@ function renderHeatmap(){
   });
   h+=`</tr></thead><tbody>`;
   DATA.ciudades.forEach(row=>{
-    h+=`<tr><td class="city-name">${row.c}<span class="city-n">n = ${row.n}</span></td>`;
+    const isHeatSel=currentCity!=='all'&&row.c===currentCity;
+    h+=`<tr${isHeatSel?' class="city-sel-row"':''}><td class="city-name">${row.c}<span class="city-n">n = ${row.n}</span></td>`;
     cols.forEach(c=>{
       const tipo=DATA.colTipo[c];
       const pct=(tipo==='tl'?row.tld[c]:row.d[c])||0;
@@ -699,20 +776,26 @@ function renderHeatmap(){
 
 // ── cards ─────────────────────────────────────────────────────────────────
 function renderCards(){
+  const city=getCityRow();
   document.getElementById('cardsGrid').innerHTML=DATA.fichas.map(f=>{
     const hide=currentFilter!=='all'&&f.tipo!==currentFilter;
     const badge=f.tipo==='tec'?'<span class="badge badge-tec">TEC</span>'
       :f.tipo==='prof'?'<span class="badge badge-prof">PROF</span>'
       :'<span class="badge badge-tl">TL</span>';
     const virtBadge=f.virtual?'<span class="badge-virtual" style="margin-left:4px">🌐 Virtual</span>':'';
+    const cp=city?cityPct(city,f):null;
+    const cityBadge=city&&cp!=null
+      ?`<br><span style="font-size:10.5px;color:var(--txt-3)">En ${city.c}: <strong style="color:var(--txt)">${cp.toFixed(1)}%</strong> · ${Math.round(city.n*cp/100)} resp.</span>`
+      :'';
+    const statVal=city&&cp!=null?`${cp.toFixed(1)}%`:`${f.pct}%`;
     return `<div class="prog-card ${f.tipo}${hide?' hidden':''}">
       <div class="prog-card-header">
         <div class="prog-card-name">${f.label}<br>${badge}${virtBadge}</div>
-        <div class="prog-stat">${f.pct}%</div>
+        <div class="prog-stat">${statVal}</div>
       </div>
       <div class="prog-detail">
-        <strong>Demanda total:</strong> ${f.n} participantes (${f.pct}%)<br>
-        <strong>Ciudad líder:</strong> ${f.top} (${f.topPct}%)
+        <strong>Demanda total:</strong> ${f.n} (${f.pct}%)<br>
+        <strong>Ciudad líder:</strong> ${f.top} (${f.topPct}%)${cityBadge}
       </div>
       <div class="prog-rec">→ ${f.rec}</div>
     </div>`;
@@ -720,25 +803,29 @@ function renderCards(){
 }
 
 // ── Derecho Virtual CSS bars ──────────────────────────────────────────────
+const DER_DATA=[
+  {c:'Barbosa',         pct:11.2},
+  {c:'Vélez',           pct:8.7},
+  {c:'Charalá',         pct:7.3},
+  {c:'San Gil',         pct:6.3},
+  {c:'Floridablanca',   pct:6.0},
+  {c:'Málaga',          pct:6.0},
+  {c:'Bucaramanga',     pct:5.0},
+  {c:'Barrancabermeja', pct:4.0},
+  {c:'Arauca',          pct:2.9},
+];
 function renderDerechoVirtual(){
-  const derData=[
-    {c:'Barbosa',         pct:11.2},
-    {c:'Vélez',           pct:8.7},
-    {c:'Charalá',         pct:7.3},
-    {c:'Floridablanca',   pct:6.0},
-    {c:'Málaga',          pct:6.0},
-    {c:'San Gil',         pct:6.3},
-    {c:'Bucaramanga',     pct:5.0},
-    {c:'Barrancabermeja', pct:4.0},
-    {c:'Arauca',          pct:2.9},
-  ];
-  const maxPct=derData[0].pct;
-  document.getElementById('derBars').innerHTML=derData.map(d=>{
+  const city=getCityRow();
+  const maxPct=DER_DATA[0].pct;
+  document.getElementById('derBars').innerHTML=DER_DATA.map(d=>{
     const w=d.pct===0?2:(d.pct/maxPct*100).toFixed(1);
-    return `<div class="der-bar-row">
-      <div class="der-bar-lbl">${d.c}</div>
-      <div class="der-bar-track"><div class="der-bar-fill${d.pct===0?' zero':''}" style="width:${w}%"></div></div>
-      <div class="der-bar-val">${d.pct===0?'0%':d.pct.toFixed(1)+'%'}</div>
+    const isSel=city&&d.c===city.c;
+    const selStyle=isSel?'outline:2px solid var(--prof);border-radius:3px;':'';
+    const fillColor=isSel?'background:var(--prof);opacity:1':'';
+    return `<div class="der-bar-row" style="${selStyle}">
+      <div class="der-bar-lbl" style="${isSel?'color:var(--txt);font-weight:600':''}">${d.c}</div>
+      <div class="der-bar-track"><div class="der-bar-fill${d.pct===0?' zero':''}" style="width:${w}%;${fillColor}"></div></div>
+      <div class="der-bar-val" style="${isSel?'font-weight:600':''}">${d.pct===0?'0%':d.pct.toFixed(1)+'%'}</div>
     </div>`;
   }).join('');
 }
@@ -752,6 +839,54 @@ function applyFilter(btn,tipo){
   renderCharts();
   renderHeatmap();
   renderCards();
+  renderDerechoVirtual();
+  updateKpis();
+}
+
+// ── applyCityFilter ───────────────────────────────────────────────────────
+function applyCityFilter(val){
+  currentCity=val;
+  renderBars();
+  renderCharts();
+  renderHeatmap();
+  renderCards();
+  renderDerechoVirtual();
+  updateKpis();
+}
+
+// ── updateKpis ────────────────────────────────────────────────────────────
+function updateKpis(){
+  const city=getCityRow();
+  const vpEl=document.getElementById('kpi-v-participants');
+  const vrEl=document.getElementById('kpi-v-responses');
+  const vtEl=document.getElementById('kpi-v-top');
+  const vlEl=document.getElementById('kpi-l-top');
+  const vtlEl=document.getElementById('kpi-v-tl');
+  const vllEl=document.getElementById('kpi-l-tl');
+  const lpEl=document.getElementById('kpi-l-participants');
+  if(!city){
+    if(vpEl)vpEl.textContent='2.157';
+    if(vrEl)vrEl.textContent='2.140';
+    if(vtEl)vtEl.textContent='Inv. Criminal';
+    if(vlEl)vlEl.textContent='Programa #1 — 11.8%';
+    if(vtlEl)vtlEl.textContent='Aux. Enfermería';
+    if(vllEl)vllEl.textContent='TL #1 — 7.3%';
+    if(lpEl)lpEl.textContent='Participantes';
+    return;
+  }
+  const tlCount=Math.round(city.n*city.tl/100);
+  const totalResp=city.tec+city.prof+tlCount;
+  // Top programa en la ciudad (por pct)
+  const ranked=DATA.global.map(d=>({d,p:cityPct(city,d)})).sort((a,b)=>b.p-a.p);
+  const top=ranked[0];
+  const topTl=ranked.find(x=>x.d.tipo==='tl');
+  if(vpEl)vpEl.textContent=city.n.toLocaleString('es-CO');
+  if(vrEl)vrEl.textContent=totalResp.toLocaleString('es-CO');
+  if(vtEl)vtEl.textContent=top?.d.label||'—';
+  if(vlEl)vlEl.textContent=`#1 local — ${top?.p.toFixed(1)||0}%`;
+  if(vtlEl)vtlEl.textContent=topTl?.d.label||'—';
+  if(vllEl)vllEl.textContent=`TL #1 local — ${topTl?.p.toFixed(1)||0}%`;
+  if(lpEl)lpEl.textContent=`Participantes · ${city.c}`;
 }
 
 // ── Tab active on scroll ──────────────────────────────────────────────────
@@ -772,11 +907,23 @@ function applyFilter(btn,tipo){
 })();
 
 // ── init ──────────────────────────────────────────────────────────────────
+// Poblar selector de municipios
+(function(){
+  const sel=document.getElementById('cityFilter');
+  if(sel){
+    DATA.ciudades.forEach(r=>{
+      const opt=document.createElement('option');
+      opt.value=r.c;opt.textContent=r.c;
+      sel.appendChild(opt);
+    });
+  }
+})();
 renderBars();
 renderCharts();
 renderHeatmap();
 renderCards();
 renderDerechoVirtual();
+updateKpis();
 
 const mq=window.matchMedia('(prefers-color-scheme:dark)');
 mq.addEventListener('change',()=>{renderCharts();renderHeatmap();});
