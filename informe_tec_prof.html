@@ -582,26 +582,38 @@ function renderCharts(){
     {v:profTotal,cls:'prof',lbl:'Profesionales'}
   ];total=grandTotal;}
 
-  // SVG Donut — rotate(-90 80 80) pone inicio en 12 en punto; cumLen creciente → sentido horario
-  const C=2*Math.PI*60; // circumference r=60
-  let svg=document.getElementById('donutSvg');
+  // SVG Donut — arcos <path> precisos; 0° = 12 en punto, sentido horario
+  const svg=document.getElementById('donutSvg');
   svg.querySelectorAll('.donut-seg').forEach(e=>e.remove());
   const colorMap={tl:'var(--tl)',tec:'var(--tec)',prof:'var(--prof)'};
-  let cumLen=0;
+  const CX=80,CY=80,R=60,SW=22;
+  function toPt(deg){
+    const rad=(deg-90)*Math.PI/180;
+    return{x:(CX+R*Math.cos(rad)).toFixed(3),y:(CY+R*Math.sin(rad)).toFixed(3)};
+  }
+  let startAngle=0;
+  const GAP=segs.length>1?1.2:0; // pequeño hueco entre segmentos
   segs.forEach(s=>{
-    const len=(s.v/total)*C;
-    const circle=document.createElementNS('http://www.w3.org/2000/svg','circle');
-    circle.setAttribute('cx','80');circle.setAttribute('cy','80');circle.setAttribute('r','60');
-    circle.setAttribute('fill','none');
-    circle.setAttribute('stroke',colorMap[s.cls]);
-    circle.setAttribute('stroke-width','22');
-    circle.setAttribute('stroke-dasharray',`${len} ${C}`);
-    circle.setAttribute('stroke-dashoffset',String(cumLen));
-    circle.setAttribute('stroke-linecap','butt');
-    circle.setAttribute('transform','rotate(-90 80 80)');
-    circle.classList.add('donut-seg');
-    svg.appendChild(circle);
-    cumLen+=len;
+    const sweep=(s.v/total)*360;
+    let el;
+    if(sweep>=359.9){
+      // segmento llena el círculo completo → <circle>
+      el=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      el.setAttribute('cx',CX);el.setAttribute('cy',CY);el.setAttribute('r',R);
+    } else {
+      const a0=startAngle+GAP/2, a1=startAngle+sweep-GAP/2;
+      const p0=toPt(a0),p1=toPt(a1);
+      const large=(sweep-GAP)>180?1:0;
+      el=document.createElementNS('http://www.w3.org/2000/svg','path');
+      el.setAttribute('d',`M${p0.x} ${p0.y} A${R} ${R} 0 ${large} 1 ${p1.x} ${p1.y}`);
+    }
+    el.setAttribute('fill','none');
+    el.setAttribute('stroke',colorMap[s.cls]);
+    el.setAttribute('stroke-width',SW);
+    el.setAttribute('stroke-linecap','butt');
+    el.classList.add('donut-seg');
+    svg.appendChild(el);
+    startAngle+=sweep;
   });
   document.getElementById('donutNum').textContent=String(total);
 
