@@ -130,11 +130,13 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--surf-0);color:var
 .city-bar-label{font-size:11.5px;color:var(--txt-2);text-align:right;white-space:nowrap;line-height:1.2}
 .city-bar-n{font-size:9.5px;color:var(--txt-3)}
 .city-bar-stack{display:flex;height:16px;border-radius:3px;overflow:hidden;gap:1px;background:var(--surf-2)}
-.city-seg{transition:width .5s ease;flex-shrink:0}
+.city-seg{transition:width .5s ease;flex-shrink:0;cursor:default}
 .city-seg.tl{background:var(--tl)}
 .city-seg.tec{background:var(--tec)}
 .city-seg.prof{background:var(--prof)}
 .city-bar-total{font-size:10px;color:var(--txt-3);font-variant-numeric:tabular-nums;text-align:right}
+/* Floating tooltip */
+#seg-tip{position:fixed;z-index:999;background:var(--txt);color:var(--surf-0);font-size:11.5px;font-family:'Inter',sans-serif;padding:5px 10px;border-radius:6px;pointer-events:none;opacity:0;transition:opacity .12s;white-space:nowrap;line-height:1.5;box-shadow:0 2px 8px rgba(0,0,0,.25)}
 
 /* ── HEATMAP ── */
 .heatmap-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:10px}
@@ -412,6 +414,7 @@ footer{max-width:1200px;margin:3rem auto 0;padding:1rem 2rem 0;font-size:11px;co
 </div><!-- /content -->
 
 <footer>Universidad de Santander UDES · Vicerrectoría Académica · Planeación Institucional · Septiembre 2026</footer>
+<div id="seg-tip"></div>
 
 <script>
 let currentFilter='all';
@@ -579,13 +582,12 @@ function renderCharts(){
     {v:profTotal,cls:'prof',lbl:'Profesionales'}
   ];total=grandTotal;}
 
-  // SVG Donut
+  // SVG Donut — rotate(-90 80 80) pone inicio en 12 en punto; cumLen creciente → sentido horario
   const C=2*Math.PI*60; // circumference r=60
   let svg=document.getElementById('donutSvg');
-  // remove existing segments
   svg.querySelectorAll('.donut-seg').forEach(e=>e.remove());
-  let offset=C/4; // start at 12 o'clock
   const colorMap={tl:'var(--tl)',tec:'var(--tec)',prof:'var(--prof)'};
+  let cumLen=0;
   segs.forEach(s=>{
     const len=(s.v/total)*C;
     const circle=document.createElementNS('http://www.w3.org/2000/svg','circle');
@@ -594,11 +596,12 @@ function renderCharts(){
     circle.setAttribute('stroke',colorMap[s.cls]);
     circle.setAttribute('stroke-width','22');
     circle.setAttribute('stroke-dasharray',`${len} ${C}`);
-    circle.setAttribute('stroke-dashoffset',String(offset));
+    circle.setAttribute('stroke-dashoffset',String(cumLen));
     circle.setAttribute('stroke-linecap','butt');
+    circle.setAttribute('transform','rotate(-90 80 80)');
     circle.classList.add('donut-seg');
     svg.appendChild(circle);
-    offset-=len;
+    cumLen+=len;
   });
   document.getElementById('donutNum').textContent=String(total);
 
@@ -623,12 +626,16 @@ function renderCharts(){
     const sum=(showTl?tlPct:0)+(showTec?tecPct:0)+(showProf?profPct:0);
     if(sum===0)return '';
     const toW=v=>((v/sum)*100).toFixed(1)+'%';
+    const tlN=Math.round(row.n*row.tl/100);
+    const tipTl =`Téc. Laborales: ${tlPct.toFixed(1)}%  ·  ${tlN} resp.`;
+    const tipTec=`Tecnológicos: ${tecPct.toFixed(1)}%  ·  ${row.tec} resp.`;
+    const tipProf=`Profesionales: ${profPct.toFixed(1)}%  ·  ${row.prof} resp.`;
     return `<div class="city-bar-row">
       <div class="city-bar-label">${row.c}<span class="city-bar-n">n=${row.n}</span></div>
       <div class="city-bar-stack">
-        ${showTl?`<div class="city-seg tl" style="width:${toW(tlPct)}"></div>`:''}
-        ${showTec?`<div class="city-seg tec" style="width:${toW(tecPct)}"></div>`:''}
-        ${showProf?`<div class="city-seg prof" style="width:${toW(profPct)}"></div>`:''}
+        ${showTl?`<div class="city-seg tl" style="width:${toW(tlPct)}" data-tip="${tipTl}"></div>`:''}
+        ${showTec?`<div class="city-seg tec" style="width:${toW(tecPct)}" data-tip="${tipTec}"></div>`:''}
+        ${showProf?`<div class="city-seg prof" style="width:${toW(profPct)}" data-tip="${tipProf}"></div>`:''}
       </div>
       <div class="city-bar-total">${sum.toFixed(0)}</div>
     </div>`;
@@ -763,6 +770,36 @@ const mq=window.matchMedia('(prefers-color-scheme:dark)');
 mq.addEventListener('change',()=>{renderCharts();renderHeatmap();});
 new MutationObserver(()=>{renderCharts();renderHeatmap();})
   .observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+// ── Floating tooltip para barras de ciudad ────────────────────────────────
+(function initSegTip(){
+  const tip=document.getElementById('seg-tip');
+  let active=false;
+  document.addEventListener('mouseover',e=>{
+    const seg=e.target.closest('.city-seg[data-tip]');
+    if(seg){
+      tip.textContent=seg.dataset.tip;
+      tip.style.opacity='1';
+      active=true;
+    }
+  });
+  document.addEventListener('mouseout',e=>{
+    const seg=e.target.closest('.city-seg[data-tip]');
+    if(seg){tip.style.opacity='0';active=false;}
+  });
+  document.addEventListener('mousemove',e=>{
+    if(!active)return;
+    const x=e.clientX,y=e.clientY;
+    const tw=tip.offsetWidth,th=tip.offsetHeight;
+    const vw=window.innerWidth,vh=window.innerHeight;
+    // preferred: right+above cursor
+    let lft=x+14, top=y-th-10;
+    if(lft+tw>vw-8) lft=x-tw-14;
+    if(top<6) top=y+18;
+    tip.style.left=lft+'px';
+    tip.style.top=top+'px';
+  });
+})();
 </script>
 </body>
 </html>
